@@ -31,6 +31,7 @@ export default function App() {
   const [confettiOn, setConfettiOn] = useState(true);
   const [replaySeed, setReplaySeed] = useState(0);
   const [stunBurst, setStunBurst] = useState(0);
+  const [solarOpen, setSolarOpen] = useState(false);
   const audioRef = useRef(null);
   const [musicReady, setMusicReady] = useState(false);
 
@@ -69,6 +70,10 @@ export default function App() {
   const handleSceneTap = () => {
     setReplaySeed((s) => s + 1);
     setStunBurst((n) => n + 1);
+  };
+
+  const handlePlanetClick = () => {
+    setSolarOpen((v) => !v);
   };
 
   const subtitle = useMemo(() => {
@@ -177,7 +182,7 @@ export default function App() {
               Twinkling stars, meteors, nebula clouds… then a rich ocean full of dolphins, turtles, whales, seahorses, starfish, corals, seagrass, and jellyfish.
             </p>
           </div>
-          <Planet3D className="planetWrap" />
+          <Planet3D className="planetWrap" active={solarOpen} onClick={handlePlanetClick} />
         </section>
 
         <section className="card">

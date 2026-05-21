@@ -64,7 +64,17 @@ function drawStarsAndMeteors(ctx, w, h, t, stars, meteors, spaceMix) {
   // Stars twinkle
   for (const s of stars) {
     const tw = 0.55 + 0.45 * Math.sin(t * 0.002 + s.tw);
-    drawStar(ctx, s.x, s.y, s.r, s.a * tw * spaceMix);
+    const alpha = s.a * tw * spaceMix;
+    drawStar(ctx, s.x, s.y, s.r, alpha);
+    if (s.spark && alpha > 0.3) {
+      ctx.save();
+      ctx.globalAlpha = alpha * 0.18;
+      ctx.fillStyle = "rgba(255,255,255,1)";
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r * 4.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
   }
 
   // Meteors
@@ -82,18 +92,25 @@ function drawStarsAndMeteors(ctx, w, h, t, stars, meteors, spaceMix) {
     const len = Math.hypot(dx, dy) || 1;
     const nx = dx / len;
     const ny = dy / len;
-    const tail = 120;
-    const x2 = x - nx * tail;
-    const y2 = y - ny * tail;
+    const x2 = x - nx * m.tail;
+    const y2 = y - ny * m.tail;
+    const color = `rgba(${m.hue[0]}, ${m.hue[1]}, ${m.hue[2]}, `;
+    const tailAlpha = m.intensity * spaceMix;
     const grad = ctx.createLinearGradient(x2, y2, x, y);
-    grad.addColorStop(0, "rgba(255,255,255,0)");
-    grad.addColorStop(1, `rgba(255,255,255,${0.85 * spaceMix})`);
+    grad.addColorStop(0, `${color}0)`);
+    grad.addColorStop(0.4, `${color}${tailAlpha * 0.18})`);
+    grad.addColorStop(1, `${color}${tailAlpha})`);
     ctx.strokeStyle = grad;
-    ctx.lineWidth = 2.2;
+    ctx.lineWidth = m.width;
     ctx.beginPath();
     ctx.moveTo(x2, y2);
     ctx.lineTo(x, y);
     ctx.stroke();
+
+    ctx.fillStyle = `rgba(255,255,255,${0.28 * tailAlpha})`;
+    ctx.beginPath();
+    ctx.arc(x, y, m.width * 2.3, 0, Math.PI * 2);
+    ctx.fill();
   }
   ctx.restore();
 }
@@ -464,25 +481,34 @@ export default function SpaceToSeaScene({ progress = 0, className }) {
     bubbles
   } = useMemo(() => {
     const rnd = mulberry32(1337);
-    const starsArr = Array.from({ length: 220 }, () => ({
+    const starsArr = Array.from({ length: 420 }, () => ({
       x: rnd(),
       y: rnd(),
-      r: 0.6 + rnd() * 1.6,
-      a: 0.35 + rnd() * 0.55,
-      tw: rnd() * Math.PI * 2
+      r: 0.4 + rnd() * 2.4,
+      a: 0.28 + rnd() * 0.65,
+      tw: rnd() * Math.PI * 2,
+      spark: rnd() > 0.88
     }));
-    const meteorsArr = Array.from({ length: 12 }, () => {
-      const t0 = rnd() * 20000;
-      const dur = 1200 + rnd() * 1400;
-      const x0 = rnd() * 1.1;
+    const meteorsArr = Array.from({ length: 24 }, () => {
+      const t0 = rnd() * 22000;
+      const dur = 1000 + rnd() * 1400;
+      const x0 = rnd() * 1.2;
       const y0 = rnd() * 0.6;
+      const tail = 80 + rnd() * 130;
+      const width = 1.6 + rnd() * 2.4;
+      const intensity = 0.65 + rnd() * 0.35;
+      const hue = rnd() > 0.7 ? [255, 215, 180] : [255, 255, 255];
       return {
         t0,
         dur,
         x0,
         y0,
-        x1: x0 + 0.28 + rnd() * 0.26,
-        y1: y0 + 0.22 + rnd() * 0.22
+        x1: x0 + 0.28 + rnd() * 0.38,
+        y1: y0 + 0.22 + rnd() * 0.26,
+        tail,
+        width,
+        intensity,
+        hue
       };
     });
     const dolphinsArr = Array.from({ length: 8 }, (_, i) => ({

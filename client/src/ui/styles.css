@@ -31,7 +31,10 @@ body {
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter,
     Arial, "Apple Color Emoji", "Segoe UI Emoji";
   color: var(--text);
-  background: radial-gradient(1200px 700px at 70% 30%, #12164a 0%, var(--bg0) 60%);
+  background: radial-gradient(1300px 700px at 72% 30%, rgba(40, 120, 255, 0.20), transparent 22%),
+    radial-gradient(900px 500px at 18% 18%, rgba(255, 90, 165, 0.16), transparent 22%),
+    radial-gradient(1400px 1100px at 50% 90%, rgba(37, 214, 255, 0.08), transparent 28%),
+    var(--bg0);
   overflow-x: hidden;
 }
 
@@ -109,9 +112,18 @@ code {
 
 .viewCard {
   padding: 18px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04));
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 22px 52px rgba(16, 30, 72, 0.28);
+  transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease, background 220ms ease;
+}
+
+.viewCard:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.20);
+  box-shadow: 0 28px 68px rgba(16, 30, 72, 0.40);
+  background: linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.06));
 }
 
 .viewCardTitle {
@@ -129,9 +141,12 @@ code {
 .underwaterStage {
   min-height: 70dvh;
   margin: 24px 0 24px;
-  border-radius: 26px;
-  background: rgba(255, 255, 255, 0);
-  border: 1px solid rgba(255, 255, 255, 0);
+  border-radius: 34px;
+  background: radial-gradient(circle at 50% 18%, rgba(83, 196, 255, 0.18), transparent 22%),
+    linear-gradient(180deg, rgba(11, 27, 55, 0.88), rgba(3, 10, 26, 0.96));
+  border: 1px solid rgba(88, 214, 255, 0.14);
+  box-shadow: inset 0 0 48px rgba(15, 70, 110, 0.30), 0 24px 85px rgba(0, 0, 0, 0.30);
+  overflow: hidden;
 }
 
 .hero {
@@ -142,12 +157,34 @@ code {
 }
 .heroLeft {
   position: relative;
-  padding: 14px 14px 8px;
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.35);
+  padding: 18px 18px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(10, 18, 43, 0.28));
+  backdrop-filter: blur(16px);
+  box-shadow: 0 26px 95px rgba(11, 28, 70, 0.42), inset 0 0 1px rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+.heroLeft::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+  background: radial-gradient(circle at 14% 18%, rgba(255, 255, 255, 0.16), transparent 24%),
+    radial-gradient(circle at 86% 10%, rgba(37, 214, 255, 0.12), transparent 26%);
+  pointer-events: none;
+}
+.heroLeft::after {
+  content: "";
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  right: -80px;
+  top: -70px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 128, 215, 0.14), transparent 45%);
+  filter: blur(16px);
+  pointer-events: none;
 }
 .heroTag {
   margin: 0;
@@ -217,13 +254,23 @@ code {
 
 .planetWrap {
   position: relative;
-  height: 210px;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.10);
-  background: rgba(255, 255, 255, 0.04);
+  height: 380px;
+  min-height: 360px;
+  border-radius: 26px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.08);
   overflow: hidden;
-  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.38);
-  backdrop-filter: blur(12px);
+  box-shadow: 0 32px 100px rgba(0, 0, 0, 0.48);
+  backdrop-filter: blur(16px);
+  cursor: pointer;
+  perspective: 1200px;
+}
+.planetWrap.planetActive {
+  height: 420px;
+}
+.planetWrap:focus-visible {
+  outline: 2px solid rgba(37, 214, 255, 0.75);
+  outline-offset: 4px;
 }
 .planet {
   position: absolute;
@@ -232,6 +279,102 @@ code {
   place-items: center;
   transform: translateZ(0);
   animation: bob 4.2s ease-in-out infinite;
+}
+.solarSystem {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  transform-style: preserve-3d;
+  transform: rotateX(18deg) rotateY(-22deg);
+}
+.sun {
+  width: 86px;
+  height: 86px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 230, 135, 0.98), rgba(255, 165, 40, 0.96) 42%, rgba(255, 123, 30, 0.86) 68%, rgba(255, 160, 80, 0.18));
+  box-shadow: 0 0 80px rgba(255, 190, 95, 0.62), inset 0 0 30px rgba(255, 236, 184, 0.86);
+  position: relative;
+}
+.orbit {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  animation: rotate 12s linear infinite;
+  transform-style: preserve-3d;
+}
+.orbit::before {
+  content: "";
+  position: absolute;
+  width: calc(var(--orbit-radius) * 2);
+  height: calc(var(--orbit-radius) * 2.2);
+  border-radius: 999px;
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.08);
+  transform: rotateX(70deg);
+}
+.orbit .planet {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) translateX(calc(var(--orbit-radius) * 1px));
+  border-radius: 999px;
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.22);
+}
+.orbit1 {
+  --orbit-radius: 62;
+  animation-duration: 10s;
+}
+.orbit2 {
+  --orbit-radius: 88;
+  animation-duration: 12.8s;
+}
+.orbit3 {
+  --orbit-radius: 118;
+  animation-duration: 15.6s;
+}
+.orbit4 {
+  --orbit-radius: 150;
+  animation-duration: 18.8s;
+}
+.orbit5 {
+  --orbit-radius: 190;
+  animation-duration: 22.6s;
+}
+.orbit1 .planet {
+  width: 16px;
+  height: 16px;
+  background: radial-gradient(circle, #f5f1d6 0%, #d0b16e 100%);
+}
+.orbit2 .planet {
+  width: 18px;
+  height: 18px;
+  background: radial-gradient(circle, #ffe8c7 0%, #d88c4c 100%);
+}
+.orbit3 .planet {
+  width: 20px;
+  height: 20px;
+  background: radial-gradient(circle, #95d8ff 0%, #4c90cd 100%);
+}
+.orbit4 .planet {
+  width: 18px;
+  height: 18px;
+  background: radial-gradient(circle, #ffbea0 0%, #d3745c 100%);
+}
+.orbit5 .planet {
+  width: 30px;
+  height: 30px;
+  background: radial-gradient(circle, #f7e9d2 0%, #c18a55 100%);
+}
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 @keyframes bob {
   0%,
