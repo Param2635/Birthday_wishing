@@ -6,12 +6,12 @@ import SpaceToSeaScene from "./SpaceToSeaScene.jsx";
 import Planet3D from "./Planet3D.jsx";
 
 const DEFAULT = {
-  to: "My Friend",
+  to: "Megha",
   title: "Happy Birthday!",
   body:
     "You’re genuinely one of my favorite people to have around. Thanks for being such a good friend — wishing you a day full of laughs, good vibes, and wonderful surprises. Happy Birthday!",
-  from: "Your Friend"
-};
+  from: "Param"
+};  
 
 function useNow() {
   const [now, setNow] = useState(() => new Date());
@@ -41,7 +41,14 @@ export default function App() {
         const res = await fetch("/api/message");
         if (!res.ok) throw new Error("Bad response");
         const data = await res.json();
-        if (!cancelled) setMessage({ ...DEFAULT, ...data });
+        if (!cancelled)
+          setMessage({
+            ...DEFAULT,
+            title: data.title || DEFAULT.title,
+            body: data.body || DEFAULT.body,
+            to: data.to || DEFAULT.to,
+            from: data.from || DEFAULT.from
+          });
       } catch {
         // Ignore: local API not running yet
       } finally {
@@ -83,6 +90,18 @@ export default function App() {
       // Autoplay restrictions; user can click again.
     }
   };
+
+  useEffect(() => {
+    // Try to autoplay when the audio is ready (best-effort; browsers may block).
+    if (!audioRef.current) return undefined;
+    if (musicReady) {
+      audioRef.current.play().catch(() => {});
+    } else {
+      // Try once on mount as a fallback (will silently fail if blocked)
+      audioRef.current.play().catch(() => {});
+    }
+    return undefined;
+  }, [musicReady]);
 
   return (
     <div
@@ -127,7 +146,7 @@ export default function App() {
             >
               {confettiOn ? "Confetti: ON" : "Confetti: OFF"}
             </button>
-            <button
+            {/* <button
               className="btn"
               onClick={() => setReplaySeed((s) => s + 1)}
               type="button"
@@ -135,7 +154,7 @@ export default function App() {
               title="Replay"
             >
               Replay
-            </button>
+            </button> */}
             <button className="btn" onClick={toggleMusic} type="button">
               Music{musicReady ? "" : " (add file)"}
             </button>
@@ -211,7 +230,7 @@ export default function App() {
 
         <section className="underwaterStage" aria-hidden="true" />
 
-        <section className="photoHint">
+        {/* <section className="photoHint">
           <div className="hintCard">
             <div className="hintTitle">Add photos later</div>
             <div className="hintText">
@@ -226,13 +245,15 @@ export default function App() {
               click <b>Music</b>.
             </div>
           </div>
-        </section>
+        </section> */}
       </main>
 
       <audio
         ref={audioRef}
         preload="auto"
         loop
+        autoPlay
+        playsInline
         src="/happy-birthday.ogg"
         onCanPlayThrough={() => setMusicReady(true)}
         onError={() => setMusicReady(false)}
