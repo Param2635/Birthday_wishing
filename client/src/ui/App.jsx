@@ -1,12 +1,15 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import ConfettiCanvas from "./ConfettiCanvas.jsx";
 import Typewriter from "./Typewriter.jsx";
+import useScrollProgress from "./useScrollProgress.js";
+import SpaceToSeaScene from "./SpaceToSeaScene.jsx";
+import Planet3D from "./Planet3D.jsx";
 
 const DEFAULT = {
   to: "My Friend",
   title: "Happy Birthday!",
   body:
-    "I’m really grateful for you. Thanks for being such a good friend — wishing you a day full of smiles, surprises, and all your favorite things.",
+    "You’re genuinely one of my favorite people to have around. Thanks for being such a good friend — wishing you a day full of laughs, good vibes, and wonderful surprises. Happy Birthday!",
   from: "Your Friend"
 };
 
@@ -20,12 +23,14 @@ function useNow() {
 }
 
 export default function App() {
+  const progress = useScrollProgress();
   const now = useNow();
   const [message, setMessage] = useState(DEFAULT);
   const [loading, setLoading] = useState(true);
   const [lightsOn, setLightsOn] = useState(true);
   const [confettiOn, setConfettiOn] = useState(true);
   const [replaySeed, setReplaySeed] = useState(0);
+  const [stunBurst, setStunBurst] = useState(0);
   const audioRef = useRef(null);
   const [musicReady, setMusicReady] = useState(false);
 
@@ -48,6 +53,17 @@ export default function App() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!stunBurst) return undefined;
+    const id = window.setTimeout(() => setStunBurst(0), 1200);
+    return () => window.clearTimeout(id);
+  }, [stunBurst]);
+
+  const handleSceneTap = () => {
+    setReplaySeed((s) => s + 1);
+    setStunBurst((n) => n + 1);
+  };
+
   const subtitle = useMemo(() => {
     const hh = String(now.getHours()).padStart(2, "0");
     const mm = String(now.getMinutes()).padStart(2, "0");
@@ -69,18 +85,18 @@ export default function App() {
   };
 
   return (
-    <div className={`page ${lightsOn ? "lights" : "dark"}`}>
+    <div
+      className={`page ${lightsOn ? "lights" : "dark"}`}
+      style={{ "--scrollP": progress }}
+    >
       <ConfettiCanvas
         enabled={confettiOn}
         seed={replaySeed}
         className="confetti"
       />
 
-      <div className="bg">
-        <div className="aurora a1" />
-        <div className="aurora a2" />
-        <div className="aurora a3" />
-        <div className="stars" />
+      <div className="sceneWrap" aria-hidden="true" onPointerDown={handleSceneTap}>
+        <SpaceToSeaScene key={replaySeed} className="sceneCanvas" progress={progress} />
       </div>
 
       <main className="shell">
@@ -126,6 +142,25 @@ export default function App() {
           </div>
         </header>
 
+        <section className="hero">
+          <div className={`heroLeft ${stunBurst ? "stunned" : ""}`}>
+            <p className="heroTag">
+              Scroll down • Universe → Ocean • Stars → Sea Creatures
+            </p>
+            <div className={`shockToast ${stunBurst ? "active" : ""}`}>
+              <span>😲💙</span>
+              <strong>She’s stunned by how magical it feels!</strong>
+            </div>
+            <h2 className="heroTitle">
+              A little universe made just for your birthday
+            </h2>
+            <p className="heroSub">
+              Twinkling stars, meteors, nebula clouds… then a rich ocean full of dolphins, turtles, whales, seahorses, starfish, corals, seagrass, and jellyfish.
+            </p>
+          </div>
+          <Planet3D className="planetWrap" />
+        </section>
+
         <section className="card">
           <div className="glow" />
           <div className="content">
@@ -155,12 +190,40 @@ export default function App() {
           </div>
         </section>
 
+        <section className="universeView">
+          <div className="viewHead">
+            <div className="viewTitle">Universe view</div>
+            <div className="viewDesc">
+              Pause here to enjoy the starry sky, the meteor trails, and the nebula glow before diving into the deep blue.
+            </div>
+          </div>
+          <div className="viewCards">
+            <div className="viewCard">
+              <div className="viewCardTitle">Meteor shower</div>
+              <p>Catch the streaking meteors while the stars pulse gently overhead.</p>
+            </div>
+            <div className="viewCard">
+              <div className="viewCardTitle">Floating galaxy</div>
+              <p>Feel the universe drift as the scene slowly transitions into oceanic blue.</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="underwaterStage" aria-hidden="true" />
+
         <section className="photoHint">
           <div className="hintCard">
             <div className="hintTitle">Add photos later</div>
             <div className="hintText">
               Drop your images into <code>client/src/assets/</code> and update{" "}
-              <code>App.jsx</code>.
+              <code>client/src/ui/App.jsx</code>.
+            </div>
+          </div>
+          <div className="hintCard">
+            <div className="hintTitle">Add music (optional)</div>
+            <div className="hintText">
+              Put a file at <code>client/public/happy-birthday.ogg</code> and
+              click <b>Music</b>.
             </div>
           </div>
         </section>
